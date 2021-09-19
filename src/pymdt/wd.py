@@ -11,12 +11,16 @@ property_mapping = {
 
 def build_user_agent():
     pkg_version = "/".join(
-        [metadata.metadata('pymdt')['Name'], 
-        metadata.metadata('pymdt')['Version']]
+        [
+            metadata.metadata('pymdt')['Name'],
+            metadata.metadata('pymdt')['Version']
+        ]
     )
     pkg_contact = "; ".join(
-        [metadata.metadata('pymdt')['Home-page'], 
-        metadata.metadata('pymdt')['Author-email']]
+        [
+            metadata.metadata('pymdt')['Home-page'],
+            metadata.metadata('pymdt')['Author-email']
+        ]
     )
 
     user_agent_string = f"Mozilla/5.0 ({pkg_contact}) {pkg_version}"
@@ -24,8 +28,8 @@ def build_user_agent():
 
 
 def get_wd_by_property(
-    property_name, 
-    endpoint_url="https://query.wikidata.org/sparql", 
+    property_name,
+    endpoint_url="https://query.wikidata.org/sparql",
     user_agent=build_user_agent(),
     return_format="summarized"
 ):
@@ -35,18 +39,18 @@ def get_wd_by_property(
     query = """SELECT
       ?item ?itemLabel
       ?prop
-    WHERE 
+    WHERE
     {
       ?item wdt:%s ?prop
       SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
     }
     """ % property_mapping[property_name].split(":")[-1]
-    
+
     sparql = SPARQLWrapper(endpoint_url, agent=user_agent)
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
     wikidata_results = sparql.query().convert()
-    
+
     if return_format == "raw":
         return wikidata_results
 
@@ -57,5 +61,5 @@ def get_wd_by_property(
             property_name: i["prop"]["value"]
         } for i in wikidata_results["results"]["bindings"]
     ]
-    
+
     return dataset
